@@ -45,4 +45,5 @@ class TestSpace(TestCase):
                 self._space_3d_withlabels[1],
                 self.space_3d_withlabels['labels'][1]
         )
+        self.assertEqual(self._space_3d_withlabels['D2'], 1)
 

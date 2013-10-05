@@ -22,9 +22,5 @@ class Space:
         try:
             return self.__labels[key]
         except TypeError:
-            index = self.__labels_dict[key]
-            try:
-                return self.__labels[index]
-            except Exception as e:
-                raise e
+            return self.__labels_dict[key]
 

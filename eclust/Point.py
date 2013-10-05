@@ -3,22 +3,28 @@
 
 
 class Point:
-    def __init__(self, space, values=None):
+    def __init__(self, space, coords=None):
         self.__space = space
-        if values is None:
-            self.__values = [0] * space.dimensions
-        elif len(values) != space.dimensions:
+        if coords is None:
+            self.__coords = [0] * space.dimensions
+        elif len(coords) != space.dimensions:
             raise 'Point\'s number of dimensions does not match that of the supplied space'
+        else:
+            self.__coords = coords
+
+    @property
+    def labels(self):
+        return self.__space.labels
+
+    @property
+    def coords(self):
+        return self.__coords
 
     def __hash__(self):
-        return hash(self.__values)
+        return hash(self.__coords)
 
     def __getitem__(self, key):
         try:
-            return self.__values[key]
+            return self.__coords[key]
         except TypeError:
-            index = self.__space.label_to_index(key)
-            try:
-                return self.__values[index]
-            except Exception as e:
-                raise e
+            return self.__coords[self.__space[key]]
