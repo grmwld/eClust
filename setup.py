@@ -10,6 +10,7 @@ setup(
     author='Alexis GRIMALDI',
     author_email='alexis.grimaldi@gmail.com',
     packages=['eclust', 'eclust.tests'],
+    test_suite='nose.collector',
     scripts=[],
     url='http://pypi.python.org/pypi/eClust/',
     license='LICENSE.txt',
@@ -23,5 +24,6 @@ setup(
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Scientific/Engineering :: Mathematics',
-    ]
+    ],
+    tests_require=['nose']
 )
