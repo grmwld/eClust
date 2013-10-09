@@ -1,4 +1,7 @@
-from distutils.core import setup
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+from setuptools import setup
 
 def readme():
     with open('./README.rst') as f:
@@ -25,5 +28,6 @@ setup(
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Scientific/Engineering :: Mathematics',
     ],
+    install_requires=['scipy'],
     tests_require=['nose']
 )

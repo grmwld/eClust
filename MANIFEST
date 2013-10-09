@@ -9,4 +9,5 @@ eclust/Population.py
 eclust/Space.py
 eclust/__init__.py
 eclust/tests/__init__.py
-eclust/tests/test.py
+eclust/tests/test_Point.py
+eclust/tests/test_Space.py
