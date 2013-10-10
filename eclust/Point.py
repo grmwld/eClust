@@ -2,8 +2,11 @@
 # -*- coding:utf-8 -*-
 
 import random
+from functools import lru_cache
+
 import numpy as np
 import scipy as sp
+from scipy.spatial.distance import euclidean
 
 
 class Point:
@@ -16,14 +19,6 @@ class Point:
             raise ValueError('Point\'s number of dimensions does not match that of the supplied space')
         else:
             self.__coords = coords
-
-    @property
-    def labels(self):
-        return self.__space.labels
-
-    @property
-    def coords(self):
-        return self.__coords
 
     def __hash__(self):
         return hash((self.__id, tuple(self.__coords)))
@@ -43,3 +38,14 @@ class Point:
     def __le__(self, other):
         return self.__coords <= other.coords
 
+    @property
+    def labels(self):
+        return self.__space.labels
+
+    @property
+    def coords(self):
+        return self.__coords
+
+    #@lru_cache(maxsize=None)
+    #def distance_to(self, other_coords):
+        #return euclidean(self.__coords, other_coords)

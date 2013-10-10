@@ -43,7 +43,7 @@ class Partition:
         f = lambda x: x==0
         Mij = np.array([list(filterfalse(f, i)) for i in dc])
         # Matrix of pairs of cluster dispersions
-        dispersions = [[c.dispersion] for c in self.__clusters]
+        dispersions = [[c.dispersion('DB')] for c in self.__clusters]
         f = lambda u, v: u+v
         cc = squareform(pdist(dispersions, f))
         f = lambda x: x==0
@@ -54,8 +54,19 @@ class Partition:
         dbi = np.sum(R) / N
         return dbi
 
+    @lru_cache(maxsize=1024)
     def __fitness_CS(self):
         N = len(self.__clusters)
+        # Distance matrix of clusters centroids
+        centroids = [c.centroid for c in self.__clusters]
+        dc = squareform(pdist(centroids))
+        f = lambda x: x==0
+        Mij = np.array([list(filterfalse(f, i)) for i in dc])
+        # Dispersion
+        dispersions = [c.dispersion('CS') for c in self.__clusters]
+        S = np.mean(dispersions)
+        csi = S / np.min(Mij, axis=1).mean()
+        return csi
 
     @property
     def fitness(self):
@@ -64,6 +75,17 @@ class Partition:
     @property
     def assignments(self):
         return self.__assignments
+
+    def fight_with(self, other, p, reverse=False):
+        podium = sorted([self, other], reverse=reverse)
+        if random.random() < p:
+            return podium[0]
+        return podium[1]
+
+    def mutate(self, model):
+        positions = model()
+        for pos in positions:
+            new_cluster = random.randint(0, len(self.__clusters))
 
     def crossover_with(self, other, model):
         p1 = []
@@ -86,10 +108,4 @@ class Partition:
                 c1.extend(s[1])
                 c2.extend(s[0])
         return (Partition(c1), Partition(c2))
-
-    def fight_with(self, other, p, reverse=False):
-        podium = sorted([self, other], reverse=reverse)
-        if random.random() < p:
-            return podium[0]
-        return podium[1]
 

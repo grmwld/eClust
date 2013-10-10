@@ -3,6 +3,7 @@
 
 import random
 import numpy as np
+from numpy.random import binomial
 import scipy as sp
 
 from . import utils
@@ -53,17 +54,23 @@ class Dataset(list):
             self.__population.append(Partition(list(zip(self, assignment))))
 
     def clusterize(self):
+        N = len(self)
         p = {
             'n': 100,
             'ik': 16,
             'ik_method': 'random',
-            'co_model': lambda: np.where(np.random.binomial(1, 1.0/len(self), len(self)))[0],
+            'co_model': lambda: np.where(binomial(1, 0.1/N, N))[0].tolist() \
+                                + [random.randint(0, N-1)],
+            'mut_model': lambda: np.where(binomial(1, 1/N, N))[0].tolist()
             'p_win': 0.8
         }
         self.__init_clusters(p['n'], p['ik'], p['ik_method'])
         self.__assignments_to_partitions()
+        #self.__population.crossover(p['co_model'])
+        #self.__population.select(p['p_win'])
         for i in range(10):
             self.__population.crossover(p['co_model'])
             self.__population.select(p['p_win'])
             print (np.mean([p.fitness for p in self.__population]))
+            self.__population.mutate(p['mut_model'])
         

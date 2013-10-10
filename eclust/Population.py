@@ -36,3 +36,7 @@ class Population(list):
             winners.append(p1.fight_with(p2, p))
         self.__update(winners)
 
+    def mutate(self, model):
+        for partition in self:
+            partition.mutate(model)
+

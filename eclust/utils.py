@@ -2,6 +2,9 @@
 # -*- coding:utf-8 -*-
 
 import csv
+from functools import lru_cache
+
+from scipy.spatial.distance import euclidean
 
 
 def read_datafile(f, header=True, dtypes=None):
@@ -43,3 +46,7 @@ def initialize_points(data):
         points.append(Point(space, row))
     return points
 
+
+@lru_cache(maxsize=4096)
+def cached_distance(u, v, f=euclidean):
+    return f(u, v)
