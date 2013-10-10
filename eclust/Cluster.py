@@ -7,6 +7,10 @@ from functools import lru_cache
 import numpy as np
 import scipy as sp
 from scipy.spatial import distance
+from scipy.spatial.distance import cdist as np_cdist
+
+import pyximport; pyximport.install()
+import cdist
 
 from . import Point
 
@@ -23,16 +27,17 @@ class Cluster(list):
     @property
     @lru_cache()
     def centroid(self):
-        coords = np.mean(np.array([p.coords for p in self], dtype=float), axis=0)
-        return list(coords)
+        coords = np.mean(np.array([p.coords for p in self]), axis=0)
+        return coords
 
     def __hash__(self):
         return hash(self.__id)
 
+    @property
+    @lru_cache()
     def dispersion(self):
-        d = distance.euclidean
         c = self.centroid
-        return np.mean([d(p.coords, c) for p in self])
+        return cdist([c], [p.coords for p in self]).mean()
 
     def distance_to(self, other):
         d = distance.euclidean

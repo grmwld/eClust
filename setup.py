@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-from setuptools import setup
+
+import numpy
+
+from setuptools import setup, Extension
+from Cython.Distutils import build_ext
+
 
 def readme():
     with open('./README.rst') as f:
@@ -28,6 +33,16 @@ setup(
         'Topic :: Scientific/Engineering :: Information Analysis',
         'Topic :: Scientific/Engineering :: Mathematics',
     ],
-    install_requires=['scipy'],
-    tests_require=['nose']
+    install_requires=['cython', 'numpy', 'scipy'],
+    tests_require=['nose'],
+    #cmdclass={'build_ext': build_ext},
+    #ext_modules=[
+        #Extension(
+            #name='cdist',
+            #sources=['eclust/cdist.pyx'],
+            #extra_link_args=['-fopenmp'],
+            #extra_compile_args=['-fopenmp'],
+            #include_dirs=[numpy.get_include()]
+        #)
+    #]
 )

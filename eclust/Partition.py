@@ -2,10 +2,12 @@
 # -*- coding:utf-8 -*-
 
 import random
-from itertools import groupby, permutations
+from itertools import groupby, permutations, filterfalse
+from functools import lru_cache
 
 import numpy as np
 import scipy as sp
+from scipy.spatial.distance import pdist, squareform
 
 from . import Point
 from . import Cluster
@@ -20,36 +22,40 @@ class Partition:
             self.__clusters.append(Cluster([g[0] for g in group]))
         if fitness == 'DB':
             self.__fitness = self.__fitness_DB
-        elif fitness == 'SM':
-            self.__fitness = self.__fitness_SM
         elif fitness == 'CS':
             self.__fitness = self.__fitness_CS
 
+    def __gt__(self, other):
+        return self.fitness > other.fitness
+    def __lt__(self, other):
+        return self.fitness < other.fitness
+    def __ge__(self, other):
+        return self.fitness >= other.fitness
+    def __le__(self, other):
+        return self.fitness <= other.fitness
+
+    @lru_cache(maxsize=1024)
     def __fitness_DB(self):
         N = len(self.__clusters)
-        f = lambda x: x[0]
-        #perms2 = list(permutations(self.__clusters, 2))
-        #D = zip(
-            #(p[0].id for p in perms2),
-            #((c1.dispersion() + c2.dispersion()) / c1.distance_to(c2)
-                #for c1, c2 in perms2)
-        #)
-        perms = permutations(self.__clusters, 2)
-        D = zip(
-            (p[0].id for p in perms),
-            ((c1.dispersion() + c2.dispersion()) / c1.distance_to(c2)
-                for c1, c2 in perms)
-        )
-        D = ([i[1] for i in g] for k, g in groupby(D, key=f))
-        R = (max(Di, ) for Di in D)
+        # Distance matrix of clusters centroids
+        centroids = [c.centroid for c in self.__clusters]
+        dc = squareform(pdist(centroids))
+        f = lambda x: x==0
+        Mij = np.array([list(filterfalse(f, i)) for i in dc])
+        # Matrix of pairs of cluster dispersions
+        dispersions = [[c.dispersion] for c in self.__clusters]
+        f = lambda u, v: u+v
+        cc = squareform(pdist(dispersions, f))
+        f = lambda x: x==0
+        Sij = np.array([list(filterfalse(f, i)) for i in cc])
+        # Finalise
+        Rij = Sij / Mij
+        R = [max(Ri, ) for Ri in Rij]
         dbi = np.sum(R) / N
         return dbi
 
-    def __fitness_SM(self):
-        return 1
-
     def __fitness_CS(self):
-        return 1
+        N = len(self.__clusters)
 
     @property
     def fitness(self):
@@ -81,12 +87,9 @@ class Partition:
                 c2.extend(s[0])
         return (Partition(c1), Partition(c2))
 
-    def fight_with(self, other, p):
-        print(self.fitness)
-        return self
-        #if self.fitness < other.fitness:
-            #pass
-        #elif self.fitness > other.fitness:
-            #pass
-        #else:
-            #return self
+    def fight_with(self, other, p, reverse=False):
+        podium = sorted([self, other], reverse=reverse)
+        if random.random() < p:
+            return podium[0]
+        return podium[1]
+

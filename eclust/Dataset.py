@@ -54,17 +54,16 @@ class Dataset(list):
 
     def clusterize(self):
         p = {
-            'n': 50,
-            'ik': 3,
+            'n': 100,
+            'ik': 16,
             'ik_method': 'random',
             'co_model': lambda: np.where(np.random.binomial(1, 1.0/len(self), len(self)))[0],
             'p_win': 0.8
         }
         self.__init_clusters(p['n'], p['ik'], p['ik_method'])
         self.__assignments_to_partitions()
-        print(len(self.__population))
-        self.__population.crossover(p['co_model'])
-        print(len(self.__population))
-        self.__population.select(p['p_win'])
-        print(len(self.__population))
+        for i in range(10):
+            self.__population.crossover(p['co_model'])
+            self.__population.select(p['p_win'])
+            print (np.mean([p.fitness for p in self.__population]))
         
